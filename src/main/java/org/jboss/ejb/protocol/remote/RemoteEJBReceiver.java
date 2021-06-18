@@ -54,7 +54,6 @@ import org.wildfly.security.auth.client.AuthenticationContext;
 import org.xnio.IoFuture;
 import org.xnio.OptionMap;
 import org.xnio.http.ConnectionClosedEarlyException;
-import org.xnio.http.HttpUpgrade;
 import org.xnio.http.UpgradeFailedException;
 
 /**
@@ -62,24 +61,21 @@ import org.xnio.http.UpgradeFailedException;
  */
 class RemoteEJBReceiver extends EJBReceiver {
     private static final Logs log = Logs.MAIN;
+    private static final RetryExecutorWrapper retryExecutorWrapper = new RetryExecutorWrapper();
+    static final ClientServiceHandle<EJBClientChannel> SERVICE_HANDLE = new ClientServiceHandle<>("jboss.ejb", channel -> EJBClientChannel.construct(channel, RemotingEJBDiscoveryProvider.INSTANCE, retryExecutorWrapper));
     static final AttachmentKey<EJBClientChannel> EJBCC_KEY = new AttachmentKey<>();
 
     private final RemoteTransportProvider remoteTransportProvider;
     private final EJBReceiverContext receiverContext;
 
-    final ClientServiceHandle<EJBClientChannel> serviceHandle;
-
-    private final RetryExecutorWrapper retryExecutorWrapper = new RetryExecutorWrapper();
-
     RemoteEJBReceiver(final RemoteTransportProvider remoteTransportProvider, final EJBReceiverContext receiverContext) {
         this.remoteTransportProvider = remoteTransportProvider;
         this.receiverContext = receiverContext;
-        serviceHandle = new ClientServiceHandle<>("jboss.ejb", channel -> EJBClientChannel.construct(channel, RemotingEJBDiscoveryProvider.INSTANCE, retryExecutorWrapper));
     }
 
     final IoFuture.HandlingNotifier<ConnectionPeerIdentity, EJBReceiverInvocationContext> notifier = new IoFuture.HandlingNotifier<ConnectionPeerIdentity, EJBReceiverInvocationContext>() {
         public void handleDone(final ConnectionPeerIdentity peerIdentity, final EJBReceiverInvocationContext attachment) {
-            serviceHandle.getClientService(peerIdentity.getConnection(), OptionMap.EMPTY).addNotifier((ioFuture, attachment1) -> {
+            SERVICE_HANDLE.getClientService(peerIdentity.getConnection(), OptionMap.EMPTY).addNotifier((ioFuture, attachment1) -> {
                 final EJBClientChannel ejbClientChannel;
                 try {
 
@@ -127,8 +123,8 @@ class RemoteEJBReceiver extends EJBReceiver {
 
     EJBClientChannel getClientChannel(final Connection connection) throws IOException {
         try {
-            log.tracef("RemoteEJBReceiver %s getting client service channel %s", this, serviceHandle);
-            return serviceHandle.getClientService(connection, OptionMap.EMPTY).getInterruptibly();
+            log.tracef("RemoteEJBReceiver %s getting client service channel %s", this, SERVICE_HANDLE);
+            return SERVICE_HANDLE.getClientService(connection, OptionMap.EMPTY).getInterruptibly();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new InterruptedIOException();
@@ -206,6 +202,6 @@ class RemoteEJBReceiver extends EJBReceiver {
     }
 
     public void close() throws Exception {
-        serviceHandle.closeChannel();
+        SERVICE_HANDLE.closeChannel();
     }
 }

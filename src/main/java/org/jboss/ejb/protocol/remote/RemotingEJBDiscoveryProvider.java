@@ -394,7 +394,7 @@ final class RemotingEJBDiscoveryProvider implements DiscoveryProvider, Discovere
                 }
 
                 public void handleDone(final ConnectionPeerIdentity data, final URI destination) {
-                    final IoFuture<EJBClientChannel> future = DiscoveryAttempt.this.ejbReceiver.serviceHandle.getClientService(data.getConnection(), OptionMap.EMPTY);
+                    final IoFuture<EJBClientChannel> future = RemoteEJBReceiver.SERVICE_HANDLE.getClientService(data.getConnection(), OptionMap.EMPTY);
                     onCancel(future::cancel);
                     future.addNotifier(innerNotifier, destination);
                 }
