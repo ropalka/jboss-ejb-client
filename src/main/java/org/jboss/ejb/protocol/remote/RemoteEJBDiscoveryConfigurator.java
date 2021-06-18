@@ -39,7 +39,7 @@ public final class RemoteEJBDiscoveryConfigurator implements ExternalDiscoveryCo
                 result.complete();
                 return DiscoveryRequest.NULL;
             }
-            return receiver.getDiscoveredNodeRegistry().discover(serviceType, filterSpec, result);
+            return RemotingEJBDiscoveryProvider.INSTANCE.discover(serviceType, filterSpec, result);
         });
     }
 }

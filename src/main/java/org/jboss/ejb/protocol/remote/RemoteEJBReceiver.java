@@ -121,10 +121,6 @@ class RemoteEJBReceiver extends EJBReceiver {
         return remoteTransportProvider;
     }
 
-    RemotingEJBDiscoveryProvider getDiscoveredNodeRegistry() {
-        return RemotingEJBDiscoveryProvider.INSTANCE;
-    }
-
     EJBReceiverContext getReceiverContext() {
         return receiverContext;
     }

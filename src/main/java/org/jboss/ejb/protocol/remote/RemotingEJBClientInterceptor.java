@@ -90,7 +90,7 @@ public final class RemotingEJBClientInterceptor implements EJBClientInterceptor 
                 if (ejbReceiver != null) {
                     final EJBClientChannel ejbClientChannel = context.getAttachment(RemoteEJBReceiver.EJBCC_KEY);
                     if (ejbClientChannel != null) {
-                        final NodeInformation nodeInformation = ejbReceiver.getDiscoveredNodeRegistry().getNodeInformation(((NodeAffinity) targetAffinity).getNodeName());
+                        final NodeInformation nodeInformation = RemotingEJBDiscoveryProvider.INSTANCE.getNodeInformation(((NodeAffinity) targetAffinity).getNodeName());
                         if (nodeInformation != null) {
                             nodeInformation.removeModule(ejbClientChannel, locator.getIdentifier().getModuleIdentifier());
                         }
