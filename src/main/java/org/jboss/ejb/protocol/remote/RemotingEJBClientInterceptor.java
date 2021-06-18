@@ -86,14 +86,11 @@ public final class RemotingEJBClientInterceptor implements EJBClientInterceptor 
                 context.setTargetAffinity(Affinity.NONE);
                 context.setWeakAffinity(Affinity.NONE);
             } else {
-                final RemoteEJBReceiver ejbReceiver = context.getClientContext().getAttachment(RemoteTransportProvider.ATTACHMENT_KEY);
-                if (ejbReceiver != null) {
-                    final EJBClientChannel ejbClientChannel = context.getAttachment(RemoteEJBReceiver.EJBCC_KEY);
-                    if (ejbClientChannel != null) {
-                        final NodeInformation nodeInformation = RemotingEJBDiscoveryProvider.INSTANCE.getNodeInformation(((NodeAffinity) targetAffinity).getNodeName());
-                        if (nodeInformation != null) {
-                            nodeInformation.removeModule(ejbClientChannel, locator.getIdentifier().getModuleIdentifier());
-                        }
+                final EJBClientChannel ejbClientChannel = context.getAttachment(RemoteEJBReceiver.EJBCC_KEY);
+                if (ejbClientChannel != null) {
+                    final NodeInformation nodeInformation = RemotingEJBDiscoveryProvider.INSTANCE.getNodeInformation(((NodeAffinity) targetAffinity).getNodeName());
+                    if (nodeInformation != null) {
+                        nodeInformation.removeModule(ejbClientChannel, locator.getIdentifier().getModuleIdentifier());
                     }
                 }
             }

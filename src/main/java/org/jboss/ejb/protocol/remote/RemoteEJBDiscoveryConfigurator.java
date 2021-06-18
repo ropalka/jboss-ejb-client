@@ -20,10 +20,8 @@ package org.jboss.ejb.protocol.remote;
 
 import java.util.function.Consumer;
 
-import org.jboss.ejb.client.EJBClientContext;
 import org.kohsuke.MetaInfServices;
 import org.wildfly.discovery.spi.DiscoveryProvider;
-import org.wildfly.discovery.spi.DiscoveryRequest;
 import org.wildfly.discovery.spi.ExternalDiscoveryConfigurator;
 import org.wildfly.discovery.spi.RegistryProvider;
 
@@ -33,13 +31,6 @@ public final class RemoteEJBDiscoveryConfigurator implements ExternalDiscoveryCo
     }
 
     public void configure(final Consumer<DiscoveryProvider> discoveryProviderConsumer, final Consumer<RegistryProvider> registryProviderConsumer) {
-        discoveryProviderConsumer.accept((serviceType, filterSpec, result) -> {
-            final RemoteEJBReceiver receiver = EJBClientContext.getCurrent().getAttachment(RemoteTransportProvider.ATTACHMENT_KEY);
-            if (receiver == null) {
-                result.complete();
-                return DiscoveryRequest.NULL;
-            }
-            return RemotingEJBDiscoveryProvider.INSTANCE.discover(serviceType, filterSpec, result);
-        });
+        discoveryProviderConsumer.accept((serviceType, filterSpec, result) -> RemotingEJBDiscoveryProvider.INSTANCE.discover(serviceType, filterSpec, result));
     }
 }
