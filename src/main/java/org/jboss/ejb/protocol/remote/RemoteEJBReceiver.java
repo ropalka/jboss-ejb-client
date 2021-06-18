@@ -66,17 +66,15 @@ class RemoteEJBReceiver extends EJBReceiver {
 
     private final RemoteTransportProvider remoteTransportProvider;
     private final EJBReceiverContext receiverContext;
-    private final RemotingEJBDiscoveryProvider discoveredNodeRegistry;
 
     final ClientServiceHandle<EJBClientChannel> serviceHandle;
 
     private final RetryExecutorWrapper retryExecutorWrapper = new RetryExecutorWrapper();
 
-    RemoteEJBReceiver(final RemoteTransportProvider remoteTransportProvider, final EJBReceiverContext receiverContext, final RemotingEJBDiscoveryProvider discoveredNodeRegistry) {
+    RemoteEJBReceiver(final RemoteTransportProvider remoteTransportProvider, final EJBReceiverContext receiverContext) {
         this.remoteTransportProvider = remoteTransportProvider;
         this.receiverContext = receiverContext;
-        this.discoveredNodeRegistry = discoveredNodeRegistry;
-        serviceHandle = new ClientServiceHandle<>("jboss.ejb", channel -> EJBClientChannel.construct(channel, this.discoveredNodeRegistry, retryExecutorWrapper));
+        serviceHandle = new ClientServiceHandle<>("jboss.ejb", channel -> EJBClientChannel.construct(channel, RemotingEJBDiscoveryProvider.INSTANCE, retryExecutorWrapper));
     }
 
     final IoFuture.HandlingNotifier<ConnectionPeerIdentity, EJBReceiverInvocationContext> notifier = new IoFuture.HandlingNotifier<ConnectionPeerIdentity, EJBReceiverInvocationContext>() {
@@ -124,7 +122,7 @@ class RemoteEJBReceiver extends EJBReceiver {
     }
 
     RemotingEJBDiscoveryProvider getDiscoveredNodeRegistry() {
-        return discoveredNodeRegistry;
+        return RemotingEJBDiscoveryProvider.INSTANCE;
     }
 
     EJBReceiverContext getReceiverContext() {
@@ -197,10 +195,10 @@ class RemoteEJBReceiver extends EJBReceiver {
 
         if (cluster != null) {
             if(System.getSecurityManager() == null) {
-                return discoveredNodeRegistry.getConnectedIdentityUsingClusterEffective(Endpoint.getCurrent(), target, "ejb", "jboss", authenticationContext, cluster);
+                return RemotingEJBDiscoveryProvider.INSTANCE.getConnectedIdentityUsingClusterEffective(Endpoint.getCurrent(), target, "ejb", "jboss", authenticationContext, cluster);
             } else {
                 return doPrivileged((PrivilegedAction<IoFuture<ConnectionPeerIdentity>>) () ->
-                        discoveredNodeRegistry.getConnectedIdentityUsingClusterEffective(Endpoint.getCurrent(), target, "ejb", "jboss", authenticationContext, cluster));
+                        RemotingEJBDiscoveryProvider.INSTANCE.getConnectedIdentityUsingClusterEffective(Endpoint.getCurrent(), target, "ejb", "jboss", authenticationContext, cluster));
             }
         }
 
