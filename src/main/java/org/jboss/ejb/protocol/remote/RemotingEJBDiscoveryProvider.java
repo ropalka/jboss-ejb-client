@@ -81,6 +81,8 @@ import org.xnio.OptionMap;
  */
 final class RemotingEJBDiscoveryProvider implements DiscoveryProvider, DiscoveredNodeRegistry {
 
+    static final RemotingEJBDiscoveryProvider INSTANCE = new RemotingEJBDiscoveryProvider();
+
     static final AuthenticationContextConfigurationClient AUTH_CONFIGURATION_CLIENT = doPrivileged(AuthenticationContextConfigurationClient.ACTION);
 
     private final ConcurrentHashMap<String, NodeInformation> nodes = new ConcurrentHashMap<>();
@@ -93,7 +95,7 @@ final class RemotingEJBDiscoveryProvider implements DiscoveryProvider, Discovere
     
     private static final long DESTINATION_RECHECK_INTERVAL = TimeUnit.MILLISECONDS.toNanos(SecurityUtils.getLong(SystemProperties.DESTINATION_RECHECK_INTERVAL, 5000L));
 
-    public RemotingEJBDiscoveryProvider() {
+    private RemotingEJBDiscoveryProvider() {
         Endpoint.getCurrent(); //this will blow up if remoting is not present, preventing this from being registered
     }
 
